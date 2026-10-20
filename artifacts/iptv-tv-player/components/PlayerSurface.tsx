@@ -12,6 +12,7 @@ import colors from '@/constants/colors';
 
 type NativePlayerProps = ViewProps & {
   streamUrl: string;
+  remoteEnabled: boolean;
   onStreamError?: (
     event: NativeSyntheticEvent<{ message?: string }>,
   ) => void;
@@ -30,15 +31,17 @@ if (Platform.OS === 'android') {
 
 type Props = {
   streamUrl: string;
+  remoteEnabled: boolean;
   onError: (message: string) => void;
 };
 
-export default function PlayerSurface({ streamUrl, onError }: Props) {
+export default function PlayerSurface({ streamUrl, remoteEnabled, onError }: Props) {
   if (Platform.OS === 'android' && NativePlayer) {
     return (
       <NativePlayer
         style={StyleSheet.absoluteFill}
         streamUrl={streamUrl}
+        remoteEnabled={remoteEnabled}
         onStreamError={(event) =>
           onError(
             event.nativeEvent.message ??

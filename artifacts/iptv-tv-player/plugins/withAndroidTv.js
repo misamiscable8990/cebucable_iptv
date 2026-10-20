@@ -1,10 +1,10 @@
-const { withAndroidManifest } = require('expo/config-plugins');
+const { withAndroidManifest, withMainActivity } = require('expo/config-plugins');
 
 const androidName = 'android:name';
 const androidRequired = 'android:required';
 
 module.exports = function withAndroidTv(config) {
-  return withAndroidManifest(config, (mod) => {
+  config = withAndroidManifest(config, (mod) => {
     const manifest = mod.modResults.manifest;
     const permissions = [
       'android.permission.INTERNET',
@@ -83,6 +83,63 @@ module.exports = function withAndroidTv(config) {
       }
     }
 
+    return mod;
+  });
+
+  return withMainActivity(config, (mod) => {
+    let source = mod.modResults.contents;
+    if (source.includes('AndroidTVRemoteKey')) return mod;
+
+    source = source.replace(
+      'import android.os.Bundle',
+      [
+        'import android.os.Bundle',
+        'import android.view.KeyEvent',
+        '',
+        'import com.facebook.react.ReactApplication',
+        'import com.facebook.react.modules.core.DeviceEventManagerModule',
+      ].join('\n'),
+    );
+
+    const remoteKeyBridge = `
+  private fun isCapturedRemoteKey(keyCode: Int): Boolean =
+    keyCode == KeyEvent.KEYCODE_DPAD_UP ||
+      keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
+      keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
+      keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ||
+      keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
+      keyCode == KeyEvent.KEYCODE_ENTER ||
+      keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER ||
+      keyCode == KeyEvent.KEYCODE_CHANNEL_UP ||
+      keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
+      keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 ||
+      keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9
+
+  private fun sendRemoteKey(keyCode: Int) {
+    val context = (application as? ReactApplication)?.reactHost?.currentReactContext ?: return
+    context
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit("AndroidTVRemoteKey", keyCode)
+  }
+
+  override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    if (isCapturedRemoteKey(event.keyCode)) {
+      if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+        sendRemoteKey(event.keyCode)
+      }
+      return true
+    }
+    return super.dispatchKeyEvent(event)
+  }
+
+`;
+
+    source = source.replace(
+      '  override fun invokeDefaultOnBackPressed() {',
+      `${remoteKeyBridge}  override fun invokeDefaultOnBackPressed() {`,
+    );
+
+    mod.modResults.contents = source;
     return mod;
   });
 };

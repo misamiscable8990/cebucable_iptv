@@ -23,6 +23,15 @@ The app registers as a landscape Android TV launcher app. The native module
 bundles LibVLC (`org.videolan.android:libvlc-all`); follow its LGPL license
 requirements when redistributing the APK.
 
+## Remote controls
+
+- The last channel (or channel 1 on first launch) starts in full-screen playback.
+- Press **Down** or **Channel Down** to open the guide; use Up/Down to browse.
+- Press **OK/Select twice** on the same channel to play it and return to full
+  screen. Press **Back** to close the guide without changing channels.
+- Enter a channel number with the remote's number keys. The player tunes
+  automatically three seconds after the last digit.
+
 ## Network requirements
 
 - The TV must be on the same multicast-enabled LAN as the streams.

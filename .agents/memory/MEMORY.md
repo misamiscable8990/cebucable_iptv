@@ -1,0 +1,1 @@
+- [Android TV IPTV display constraints](iptv-tv-display.md) — never show LIVE text or multicast URLs in the player UI.

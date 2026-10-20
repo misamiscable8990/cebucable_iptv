@@ -1,0 +1,107 @@
+package expo.modules.iptvplayer
+
+import android.content.Context
+import android.graphics.Color
+import android.net.Uri
+import android.net.wifi.WifiManager
+import expo.modules.kotlin.AppContext
+import expo.modules.kotlin.viewevent.EventDispatcher
+import expo.modules.kotlin.views.ExpoView
+import org.videolan.libvlc.LibVLC
+import org.videolan.libvlc.Media
+import org.videolan.libvlc.MediaPlayer
+import org.videolan.libvlc.util.VLCVideoLayout
+
+class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
+  private val libVlc = LibVLC(
+    context.applicationContext,
+    arrayListOf("--no-video-title-show", "--network-caching=1200", "--udp-caching=1200"),
+  )
+  private val mediaPlayer = MediaPlayer(libVlc)
+  private val videoLayout = VLCVideoLayout(context)
+  private val multicastLock: WifiManager.MulticastLock? =
+    (context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager)
+      ?.createMulticastLock("iptv-tv-multicast")
+  private var activeUrl: String? = null
+  private var released = false
+  private var remoteEnabled = true
+
+  val onStreamError by EventDispatcher()
+
+  init {
+    setBackgroundColor(Color.BLACK)
+    addView(
+      videoLayout,
+      LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
+    )
+    mediaPlayer.attachViews(videoLayout, null, false, false)
+    mediaPlayer.setEventListener { event ->
+      if (event.type == MediaPlayer.Event.EncounteredError) {
+        post {
+          onStreamError(
+            mapOf("message" to "No multicast video was received. Check the TV network and stream."),
+          )
+        }
+      }
+    }
+    try {
+      multicastLock?.let { lock ->
+        lock.setReferenceCounted(false)
+        if (!lock.isHeld) lock.acquire()
+      }
+    } catch (_: SecurityException) {
+      post {
+        onStreamError(
+          mapOf("message" to "Multicast access is unavailable on this TV network."),
+        )
+      }
+    }
+  }
+
+  fun setStreamUrl(url: String?) {
+    if (released || url.isNullOrBlank() || url == activeUrl) return
+    activeUrl = url
+
+    post {
+      if (released) return@post
+      try {
+        mediaPlayer.stop()
+        val media = Media(libVlc, Uri.parse(url))
+        media.addOption(":network-caching=1200")
+        media.addOption(":udp-caching=1200")
+        mediaPlayer.media = media
+        media.release()
+        mediaPlayer.play()
+      } catch (_: Exception) {
+        onStreamError(
+          mapOf("message" to "Could not open this UDP stream. Check its address and port."),
+        )
+      }
+    }
+  }
+
+  fun setRemoteEnabled(enabled: Boolean) {
+    remoteEnabled = enabled
+    isFocusable = enabled
+    isFocusableInTouchMode = enabled
+  }
+
+  override fun onDetachedFromWindow() {
+    releasePlayer()
+    super.onDetachedFromWindow()
+  }
+
+  private fun releasePlayer() {
+    if (released) return
+    released = true
+    try {
+      mediaPlayer.stop()
+      mediaPlayer.detachViews()
+      mediaPlayer.release()
+      libVlc.release()
+      if (multicastLock?.isHeld == true) multicastLock.release()
+    } catch (_: Exception) {
+      // Cleanup should not prevent the Android view from detaching.
+    }
+  }
+}

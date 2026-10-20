@@ -1,0 +1,18 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.iptvplayer'
+version = '1.0.0'
+
+android {
+  namespace 'expo.modules.iptvplayer'
+  defaultConfig {
+    minSdkVersion 24
+  }
+}
+
+dependencies {
+  implementation 'org.videolan.android:libvlc-all:3.6.0'
+}

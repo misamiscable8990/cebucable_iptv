@@ -12,6 +12,9 @@ expo-env.d.ts
 # Native
 ios/
 android/
+# Keep the custom Expo module source while ignoring generated Android projects.
+!modules/iptv-player/android/
+!modules/iptv-player/android/**
 *.orig.*
 *.jks
 *.p8
