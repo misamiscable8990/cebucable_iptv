@@ -124,8 +124,6 @@ export default function HomeScreen() {
             <Feather name="radio" size={18} color={theme.primaryForeground} />
           </View>
           <Text style={styles.brandName}>IPTV</Text>
-          <View style={styles.headerDivider} />
-          <Text style={styles.headerSection}>LIVE TV</Text>
         </View>
         <View style={styles.headerMeta}>
           <View style={styles.liveDot} />
@@ -166,29 +164,16 @@ export default function HomeScreen() {
 
           <View style={styles.nowPlaying}>
             <View style={styles.nowPlayingInfo}>
-              <View style={styles.nowPlayingEyebrow}>
-                <View style={styles.livePill}>
-                  <View style={styles.livePillDot} />
-                  <Text style={styles.livePillText}>LIVE</Text>
-                </View>
-                <Text style={styles.nowPlayingChannel}>
-                  {currentChannel
-                    ? `CH ${String(currentChannel.number).padStart(2, '0')}`
-                    : 'STARTING'}
-                </Text>
-              </View>
+              <Text style={styles.nowPlayingChannel}>
+                {currentChannel
+                  ? `CH ${String(currentChannel.number).padStart(2, '0')}`
+                  : 'STARTING'}
+              </Text>
               <Text numberOfLines={1} style={styles.nowPlayingName}>
                 {restoring
                   ? 'Tuning to your channel'
                   : (currentChannel?.name ?? 'No channel available')}
               </Text>
-              <Text numberOfLines={1} style={styles.streamAddress}>
-                {currentChannel?.url ?? 'Waiting for the channel list'}
-              </Text>
-            </View>
-            <View style={styles.feedBadge}>
-              <Feather name="radio" size={15} color={theme.primary} />
-              <Text style={styles.feedBadgeText}>UDP</Text>
             </View>
           </View>
         </View>
@@ -268,18 +253,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 1.1,
   },
-  headerDivider: {
-    width: 1,
-    height: 21,
-    backgroundColor: theme.border,
-    marginHorizontal: 5,
-  },
-  headerSection: {
-    color: theme.mutedForeground,
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.3,
-  },
   headerMeta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -350,66 +323,18 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 12,
   },
-  nowPlayingEyebrow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 5,
-  },
-  livePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: theme.liveBadge,
-    borderRadius: 5,
-    paddingHorizontal: 7,
-    paddingVertical: 4,
-  },
-  livePillDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: theme.destructive,
-  },
-  livePillText: {
-    color: theme.destructive,
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 0.9,
-  },
   nowPlayingChannel: {
     color: theme.mutedForeground,
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1,
+    marginBottom: 5,
   },
   nowPlayingName: {
     color: theme.foreground,
     fontSize: 20,
     fontWeight: '700',
     letterSpacing: 0.1,
-  },
-  streamAddress: {
-    color: theme.mutedForeground,
-    fontSize: 11,
-    marginTop: 6,
-    fontVariant: ['tabular-nums'],
-  },
-  feedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: 9,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  feedBadgeText: {
-    color: theme.mutedForeground,
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.8,
   },
   guide: {
     minHeight: 0,
