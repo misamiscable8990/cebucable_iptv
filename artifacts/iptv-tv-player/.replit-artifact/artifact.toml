@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/iptv-tv-player/"
+title = "IPTV TV Player"
+description = "A native Android TV IPTV player for the user's 60-channel M3U playlist. Opens directly into live multicast UDP playback, with a simple D-pad channel guide and remembered last channel."
+version = "1.0.0"
+id = "artifacts/iptv-tv-player"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/iptv-tv-player/" ]
+localPort = 23370
+
+[services.development]
+run = "pnpm --filter @workspace/iptv-tv-player run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/iptv-tv-player", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/iptv-tv-player", "run", "serve" ]
+
+[services.env]
+PORT = "23370"
+BASE_PATH = "/iptv-tv-player/"
