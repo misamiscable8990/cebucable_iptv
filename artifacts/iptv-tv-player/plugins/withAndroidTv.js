@@ -12,6 +12,7 @@ module.exports = function withAndroidTv(config) {
       'android.permission.ACCESS_WIFI_STATE',
       'android.permission.CHANGE_WIFI_MULTICAST_STATE',
       'android.permission.WAKE_LOCK',
+      'android.permission.REQUEST_INSTALL_PACKAGES',
     ];
 
     manifest['uses-permission'] = manifest['uses-permission'] ?? [];

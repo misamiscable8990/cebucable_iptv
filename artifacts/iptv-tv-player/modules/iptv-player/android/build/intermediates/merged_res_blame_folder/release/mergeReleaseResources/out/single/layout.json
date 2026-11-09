@@ -1,0 +1,62 @@
+[
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_part_time.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-core-1.0.0-2:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/surface_view.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-libvlc-all-3.6.0-0:/layout/surface_view.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_big_media_custom.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_big_media_custom.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/vlc_video_layout.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-libvlc-all-3.6.0-0:/layout/vlc_video_layout.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_part_chronometer.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-core-1.0.0-2:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_big_media_narrow_custom.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_big_media_narrow_custom.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_media_custom.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_media_custom.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/texture_view.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-libvlc-all-3.6.0-0:/layout/texture_view.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_big_media.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_big_media.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_big_media_narrow.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_big_media_narrow.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_media.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_media.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_template_lines_media.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_template_lines_media.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/player_remote.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-libvlc-all-3.6.0-0:/layout/player_remote.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_media_action.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_media_action.xml"
+    },
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/layout/notification_media_cancel_action.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-media-1.0.0-1:/layout/notification_media_cancel_action.xml"
+    }
+]

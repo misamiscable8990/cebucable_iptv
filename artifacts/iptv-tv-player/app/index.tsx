@@ -15,6 +15,7 @@ import {
 import PlayerSurface from '@/components/PlayerSurface';
 import colors from '@/constants/colors';
 import { channels, type Channel } from '@/data/channels';
+import { useAppUpdate } from '@/hooks/useAppUpdate';
 
 const STORAGE_KEY = 'iptv:last-channel';
 const REMOTE_KEY_EVENT = 'AndroidTVRemoteKey';
@@ -43,6 +44,7 @@ function webKeyCode(key: string): number | null {
 }
 
 export default function HomeScreen() {
+  const { updateAvailable, updateInfo, downloading, downloadProgress, downloadAndInstall } = useAppUpdate();
   const { width, height } = useWindowDimensions();
   const wideLayout = width > height || width >= 760;
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -224,7 +226,7 @@ export default function HomeScreen() {
 
     if (keyCode === 19 || keyCode === 166) {
       if (guideOpen) moveSelection(-1);
-      else if (keyCode === 166) openGuide();
+      else openGuide();
       return;
     }
 
@@ -342,16 +344,28 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
+      {updateAvailable && (
+        <View style={styles.updateBanner}>
+          <Feather name="download-cloud" size={16} color={theme.primaryForeground} />
+          <Text style={styles.updateText}>
+            Update available: v{updateInfo?.version} {downloading ? `(${Math.round(downloadProgress * 100)}%)` : ''}
+          </Text>
+          <Pressable style={styles.updateButton} onPress={downloadAndInstall}>
+            <Text style={styles.updateButtonText}>{downloading ? 'Downloading...' : 'Update Now'}</Text>
+          </Pressable>
+        </View>
+      )}
+
       <View style={[styles.header, !guideOpen && styles.hidden]}>
         <View style={styles.brand}>
           <View style={styles.brandIcon}>
             <Feather name="radio" size={18} color={theme.primaryForeground} />
           </View>
-          <Text style={styles.brandName}>IPTV</Text>
+          <Text style={styles.brandName}>CEBU CABLE IPTV</Text>
         </View>
         <View style={styles.headerMeta}>
           <View style={styles.liveDot} />
-          <Text style={styles.headerMetaText}>60 CHANNELS</Text>
+          <Text style={styles.headerMetaText}>{channels.length} CHANNELS</Text>
         </View>
       </View>
 
@@ -437,7 +451,7 @@ export default function HomeScreen() {
                 Select a channel twice to return to full screen
               </Text>
             </View>
-            <Text style={styles.guideCount}>60</Text>
+            <Text style={styles.guideCount}>{channels.length}</Text>
           </View>
           <FlatList
             ref={listRef}
@@ -471,7 +485,6 @@ export default function HomeScreen() {
       </View>
 
       <View style={[styles.footer, !guideOpen && styles.hidden]}>
-        <Text style={styles.footerText}>GELOBOT TV PLAYLIST</Text>
         <Text style={styles.footerNetwork}>
           {saveWarning
             ? 'LAST CHANNEL COULD NOT BE SAVED'
@@ -756,5 +769,30 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '600',
     letterSpacing: 0.6,
+  },
+  updateBanner: {
+    backgroundColor: theme.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 12,
+  },
+  updateText: {
+    color: theme.primaryForeground,
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+  },
+  updateButton: {
+    backgroundColor: theme.foreground,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  updateButtonText: {
+    color: theme.background,
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

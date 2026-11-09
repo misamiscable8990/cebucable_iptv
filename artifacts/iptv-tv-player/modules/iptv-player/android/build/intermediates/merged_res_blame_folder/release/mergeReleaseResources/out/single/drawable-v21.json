@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "expo.modules.iptvplayer.iptv-player-release-7:/drawable-v21/notification_action_background.xml",
+        "source": "expo.modules.iptvplayer.iptv-player-core-1.0.0-2:/drawable-v21/notification_action_background.xml"
+    }
+]
