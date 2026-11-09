@@ -98,6 +98,7 @@ module.exports = function withAndroidTv(config) {
         'import android.view.KeyEvent',
         '',
         'import com.facebook.react.ReactApplication',
+        'import com.facebook.react.bridge.Arguments',
         'import com.facebook.react.modules.core.DeviceEventManagerModule',
       ].join('\n'),
     );
@@ -113,20 +114,27 @@ module.exports = function withAndroidTv(config) {
       keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER ||
       keyCode == KeyEvent.KEYCODE_CHANNEL_UP ||
       keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
+      keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
+      keyCode == KeyEvent.KEYCODE_MEDIA_PLAY ||
+      keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE ||
       keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 ||
       keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9
 
-  private fun sendRemoteKey(keyCode: Int) {
+  private fun sendRemoteKey(keyCode: Int, action: Int) {
     val context = (application as? ReactApplication)?.reactHost?.currentReactContext ?: return
+    val params = Arguments.createMap().apply {
+      putInt("keyCode", keyCode)
+      putInt("action", action)
+    }
     context
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-      .emit("AndroidTVRemoteKey", keyCode)
+      .emit("AndroidTVRemoteKey", params)
   }
 
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
     if (isCapturedRemoteKey(event.keyCode)) {
-      if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-        sendRemoteKey(event.keyCode)
+      if (event.repeatCount == 0 && (event.action == KeyEvent.ACTION_DOWN || event.action == KeyEvent.ACTION_UP)) {
+        sendRemoteKey(event.keyCode, event.action)
       }
       return true
     }

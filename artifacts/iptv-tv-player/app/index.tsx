@@ -37,7 +37,7 @@ function webKeyCode(key: string): number | null {
     ArrowLeft: 21,
     ArrowRight: 22,
     Enter: 23,
-    ' ': 23,
+    ' ': 85,
     PageUp: 166,
     PageDown: 167,
   };
@@ -65,6 +65,7 @@ export default function HomeScreen() {
   const pendingPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const numberInputRef = useRef('');
   const numberTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -213,7 +214,27 @@ export default function HomeScreen() {
     }, 3000);
   }, [cancelPendingPress, commitChannel]);
 
-  const handleRemoteKey = useCallback((keyCode: number) => {
+  const handleRemoteKey = useCallback((eventData: number | { keyCode: number; action: number }) => {
+    const keyCode = typeof eventData === 'number' ? eventData : eventData.keyCode;
+    const action = typeof eventData === 'number' ? 0 : eventData.action;
+
+    if (updateAvailable && (keyCode === 85 || keyCode === 126 || keyCode === 127)) {
+      if (action === 0) {
+        if (!longPressTimerRef.current) {
+          longPressTimerRef.current = setTimeout(() => {
+            downloadAndInstall();
+            longPressTimerRef.current = null;
+          }, 3000);
+        }
+      } else if (action === 1) {
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+      }
+      return;
+    }
+
     const digit = digitForRemoteKey(keyCode);
     if (digit !== null) {
       appendChannelDigit(digit);
@@ -249,7 +270,7 @@ export default function HomeScreen() {
     if (Platform.OS !== 'android') return;
     const subscription = DeviceEventEmitter.addListener(
       REMOTE_KEY_EVENT,
-      (keyCode: number) => handleRemoteKey(keyCode),
+      (data: any) => handleRemoteKey(data),
     );
     return () => subscription.remove();
   }, [handleRemoteKey]);
@@ -261,10 +282,19 @@ export default function HomeScreen() {
       if (keyCode === null) return;
       event.preventDefault();
       event.stopPropagation();
-      handleRemoteKey(keyCode);
+      handleRemoteKey({ keyCode, action: 0 });
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      const keyCode = webKeyCode(event.key);
+      if (keyCode === null) return;
+      handleRemoteKey({ keyCode, action: 1 });
     };
     document.addEventListener('keydown', onKeyDown, true);
-    return () => document.removeEventListener('keydown', onKeyDown, true);
+    document.addEventListener('keyup', onKeyUp, true);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true);
+      document.removeEventListener('keyup', onKeyUp, true);
+    };
   }, [handleRemoteKey]);
 
   useEffect(() => {
@@ -346,18 +376,6 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
-      {updateAvailable && (
-        <View style={styles.updateBanner}>
-          <Feather name="download-cloud" size={16} color={theme.primaryForeground} />
-          <Text style={styles.updateText}>
-            Update available: v{updateInfo?.version} {downloading ? `(${Math.round(downloadProgress * 100)}%)` : ''}
-          </Text>
-          <Pressable style={styles.updateButton} onPress={downloadAndInstall}>
-            <Text style={styles.updateButtonText}>{downloading ? 'Downloading...' : 'Update Now'}</Text>
-          </Pressable>
-        </View>
-      )}
-
       <View style={[styles.header, !guideOpen && styles.hidden]}>
         <View style={styles.brand}>
           <View style={styles.brandIcon}>
