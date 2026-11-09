@@ -243,19 +243,22 @@ export default function HomeScreen() {
 
     if (keyCode === 20 || keyCode === 167) {
       if (guideOpen) moveSelection(1);
-      else openGuide();
       return;
     }
 
     if (keyCode === 19 || keyCode === 166) {
       if (guideOpen) moveSelection(-1);
-      else openGuide();
       return;
     }
 
-    if ((keyCode === 23 || keyCode === 66 || keyCode === 160) && guideOpen) {
-      const channel = channels[selectedIndex];
-      if (channel) handleChannelPress(channel);
+    if (keyCode === 23 || keyCode === 66 || keyCode === 160) {
+      if (guideOpen) {
+        const channel = channels[selectedIndex];
+        if (channel) handleChannelPress(channel);
+      } else {
+        openGuide();
+      }
+      return;
     }
   }, [
     appendChannelDigit,
