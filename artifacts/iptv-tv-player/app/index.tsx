@@ -16,6 +16,7 @@ import PlayerSurface from '@/components/PlayerSurface';
 import colors from '@/constants/colors';
 import { channels, type Channel } from '@/data/channels';
 import { useAppUpdate } from '@/hooks/useAppUpdate';
+import { useKeepAwake } from 'expo-keep-awake';
 
 const STORAGE_KEY = 'iptv:last-channel';
 const REMOTE_KEY_EVENT = 'AndroidTVRemoteKey';
@@ -44,6 +45,7 @@ function webKeyCode(key: string): number | null {
 }
 
 export default function HomeScreen() {
+  useKeepAwake();
   const { updateAvailable, updateInfo, downloading, downloadProgress, downloadAndInstall } = useAppUpdate();
   const { width, height } = useWindowDimensions();
   const wideLayout = width > height || width >= 760;
