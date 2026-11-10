@@ -1,6 +1,6 @@
 {
-  "version": "1.0.16",
-  "versionCode": 17,
-  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.16/app-release.apk",
-  "releaseNotes": "CEBU CABLE IPTV v1.0.16 release with channel number search & navigation, long-press Play update, and background playback fix."
+  "version": "1.0.17",
+  "versionCode": 18,
+  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.17/app-release.apk",
+  "releaseNotes": "CEBU CABLE IPTV v1.0.17 release: Prominent channel number search overlay, OK button guide trigger, long-press Play update, and idle background playback fix."
 }

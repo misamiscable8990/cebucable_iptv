@@ -255,34 +255,30 @@ export default function HomeScreen() {
       return;
     }
 
-    if (keyCode === 166 || keyCode === 167) {
-      const step = keyCode === 167 ? 1 : -1;
-      const nextIndex = Math.max(0, Math.min(channels.length - 1, (currentChannel?.number ?? 1) - 1 + step));
-      const nextChan = channels[nextIndex];
-      if (nextChan) commitChannel(nextChan);
-      return;
-    }
-
+    // Arrow Down (20)
     if (keyCode === 20) {
       if (guideOpen) moveSelection(1);
-      else openGuide();
       return;
     }
 
+    // Arrow Up (19)
     if (keyCode === 19) {
       if (guideOpen) moveSelection(-1);
-      else openGuide();
       return;
     }
 
-    if ((keyCode === 23 || keyCode === 66 || keyCode === 160) && guideOpen) {
-      const channel = channels[selectedIndex];
-      if (channel) handleChannelPress(channel);
+    // OK / Enter / Center button (23, 66, 160) - ONLY button that opens channel guide!
+    if (keyCode === 23 || keyCode === 66 || keyCode === 160) {
+      if (guideOpen) {
+        const channel = channels[selectedIndex];
+        if (channel) handleChannelPress(channel);
+      } else {
+        openGuide();
+      }
+      return;
     }
   }, [
     appendChannelDigit,
-    commitChannel,
-    currentChannel?.number,
     guideOpen,
     handleChannelPress,
     moveSelection,
@@ -417,14 +413,14 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
-      {/* Top-Level Number Entry Overlay over Main Video Interface */}
+      {/* Top-Level Visible Channel Number Search Overlay over Main Video UI */}
       {numberInput || invalidNumber ? (
         <View pointerEvents="none" style={styles.numberEntryOverlay}>
           <Text style={styles.numberEntryValue}>
             {invalidNumber ? numberInput : `CH ${numberInput}`}
           </Text>
           <Text style={styles.numberEntryLabel}>
-            {invalidNumber ? 'CHANNEL NOT FOUND' : 'TUNING IN'}
+            {invalidNumber ? 'CHANNEL NOT FOUND' : 'TUNING IN (3s)'}
           </Text>
         </View>
       ) : null}
@@ -579,49 +575,53 @@ const styles = StyleSheet.create({
   },
   numberEntryOverlay: {
     position: 'absolute',
-    top: 36,
-    right: 36,
-    alignItems: 'flex-end',
-    borderRadius: 14,
-    borderWidth: 1.5,
+    top: 40,
+    right: 40,
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 2,
     borderColor: theme.primary,
-    backgroundColor: 'rgba(15, 23, 42, 0.94)',
-    paddingHorizontal: 22,
-    paddingVertical: 14,
+    backgroundColor: 'rgba(10, 15, 30, 0.95)',
+    paddingHorizontal: 28,
+    paddingVertical: 16,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
     zIndex: 99999,
     elevation: 999,
   },
   numberEntryValue: {
     color: theme.primary,
-    fontSize: 34,
+    fontSize: 44,
     fontWeight: '900',
     fontVariant: ['tabular-nums'],
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
   numberEntryLabel: {
-    color: theme.foreground,
-    fontSize: 10,
+    color: '#F8FAFC',
+    fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 1.2,
+    letterSpacing: 1.5,
     marginTop: 4,
   },
   updateStatusOverlay: {
     position: 'absolute',
-    top: 36,
-    left: 36,
+    top: 40,
+    left: 40,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     backgroundColor: theme.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: 12,
     zIndex: 99999,
     elevation: 999,
   },
   updateStatusText: {
     color: theme.primaryForeground,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
   },
   header: {
