@@ -72,12 +72,15 @@ export default function HomeScreen() {
   const [restoring, setRestoring] = useState(true);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [saveWarning, setSaveWarning] = useState(false);
+  const [channelOSD, setChannelOSD] = useState<string | null>(null);
+
   const listRef = useRef<FlatList<Channel> | null>(null);
   const pendingPressRef = useRef<{ channelId: string; at: number } | null>(null);
   const pendingPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const numberInputRef = useRef('');
   const numberTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const osdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -111,6 +114,15 @@ export default function HomeScreen() {
     [currentId],
   );
 
+  const showChannelOSD = useCallback((channel: Channel) => {
+    setChannelOSD(`CH ${String(channel.number).padStart(2, '0')} · ${channel.name}`);
+    if (osdTimerRef.current) clearTimeout(osdTimerRef.current);
+    osdTimerRef.current = setTimeout(() => {
+      setChannelOSD(null);
+      osdTimerRef.current = null;
+    }, 3000);
+  }, []);
+
   const cancelPendingPress = useCallback(() => {
     pendingPressRef.current = null;
     if (pendingPressTimerRef.current) {
@@ -134,10 +146,22 @@ export default function HomeScreen() {
       clearTimeout(numberTimerRef.current);
       numberTimerRef.current = null;
     }
+    showChannelOSD(channel);
     void AsyncStorage.setItem(STORAGE_KEY, channel.id)
       .then(() => setSaveWarning(false))
       .catch(() => setSaveWarning(true));
-  }, [cancelPendingPress]);
+  }, [cancelPendingPress, showChannelOSD]);
+
+  const changeChannelByStep = useCallback((step: number) => {
+    const currentIndex = (currentChannel?.number ?? 1) - 1;
+    let nextIndex = currentIndex + step;
+    if (nextIndex < 0) nextIndex = channels.length - 1;
+    if (nextIndex >= channels.length) nextIndex = 0;
+    const nextChan = channels[nextIndex];
+    if (nextChan) {
+      commitChannel(nextChan);
+    }
+  }, [commitChannel, currentChannel?.number]);
 
   const handleChannelPress = useCallback((channel: Channel) => {
     const now = Date.now();
@@ -257,13 +281,32 @@ export default function HomeScreen() {
 
     // Arrow Down (20)
     if (keyCode === 20) {
-      if (guideOpen) moveSelection(1);
+      if (guideOpen) {
+        moveSelection(1);
+      } else {
+        changeChannelByStep(1);
+      }
       return;
     }
 
     // Arrow Up (19)
     if (keyCode === 19) {
-      if (guideOpen) moveSelection(-1);
+      if (guideOpen) {
+        moveSelection(-1);
+      } else {
+        changeChannelByStep(-1);
+      }
+      return;
+    }
+
+    // Channel Up (166) / Channel Down (167)
+    if (keyCode === 166 || keyCode === 167) {
+      const step = keyCode === 167 ? 1 : -1;
+      if (guideOpen) {
+        moveSelection(step);
+      } else {
+        changeChannelByStep(step);
+      }
       return;
     }
 
@@ -279,6 +322,7 @@ export default function HomeScreen() {
     }
   }, [
     appendChannelDigit,
+    changeChannelByStep,
     guideOpen,
     handleChannelPress,
     moveSelection,
@@ -350,6 +394,7 @@ export default function HomeScreen() {
     if (pendingPressTimerRef.current) clearTimeout(pendingPressTimerRef.current);
     if (numberTimerRef.current) clearTimeout(numberTimerRef.current);
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    if (osdTimerRef.current) clearTimeout(osdTimerRef.current);
   }, []);
 
   const renderChannel = useCallback(
@@ -413,7 +458,7 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
-      {/* Top-Level Visible Channel Number Search Overlay over Main Video UI */}
+      {/* Top-Level Visible Channel Number Search Overlay over Main Full Screen Video */}
       {numberInput || invalidNumber ? (
         <View pointerEvents="none" style={styles.numberEntryOverlay}>
           <Text style={styles.numberEntryValue}>
@@ -422,6 +467,14 @@ export default function HomeScreen() {
           <Text style={styles.numberEntryLabel}>
             {invalidNumber ? 'CHANNEL NOT FOUND' : 'TUNING IN (3s)'}
           </Text>
+        </View>
+      ) : null}
+
+      {/* Top-Level Channel Info OSD Banner on Full Screen Video */}
+      {!guideOpen && channelOSD && !numberInput && !invalidNumber ? (
+        <View pointerEvents="none" style={styles.channelOSDBanner}>
+          <View style={styles.liveDot} />
+          <Text style={styles.channelOSDText}>{channelOSD}</Text>
         </View>
       ) : null}
 
@@ -578,32 +631,54 @@ const styles = StyleSheet.create({
     top: 40,
     right: 40,
     alignItems: 'center',
-    borderRadius: 16,
-    borderWidth: 2,
+    borderRadius: 18,
+    borderWidth: 2.5,
     borderColor: theme.primary,
     backgroundColor: 'rgba(10, 15, 30, 0.95)',
-    paddingHorizontal: 28,
-    paddingVertical: 16,
+    paddingHorizontal: 32,
+    paddingVertical: 18,
     shadowColor: theme.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
     zIndex: 99999,
     elevation: 999,
   },
   numberEntryValue: {
     color: theme.primary,
-    fontSize: 44,
+    fontSize: 48,
     fontWeight: '900',
     fontVariant: ['tabular-nums'],
     letterSpacing: 2,
   },
   numberEntryLabel: {
     color: '#F8FAFC',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '800',
     letterSpacing: 1.5,
     marginTop: 4,
+  },
+  channelOSDBanner: {
+    position: 'absolute',
+    top: 40,
+    left: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    zIndex: 99998,
+    elevation: 998,
+  },
+  channelOSDText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   updateStatusOverlay: {
     position: 'absolute',
