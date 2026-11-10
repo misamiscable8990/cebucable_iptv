@@ -1,6 +1,6 @@
 <lint-module
     format="1"
-    dir="/home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android"
+    dir="/home/misamis/Documents/paulpogs/cebucable_iptv_v1.0.4/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android"
     name=":iptv-player"
     type="LIBRARY"
     maven="expo.modules.iptvplayer:iptv-player:1.0.0"
