@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.view.View
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
@@ -25,6 +26,7 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
   private var activeUrl: String? = null
   private var released = false
   private var remoteEnabled = true
+  private var isPausedByLifecycle = false
 
   val onStreamError by EventDispatcher()
 
@@ -72,6 +74,7 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
         mediaPlayer.media = media
         media.release()
         mediaPlayer.play()
+        isPausedByLifecycle = false
       } catch (_: Exception) {
         onStreamError(
           mapOf("message" to "Could not open this UDP stream. Check its address and port."),
@@ -84,6 +87,59 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
     remoteEnabled = enabled
     isFocusable = enabled
     isFocusableInTouchMode = enabled
+  }
+
+  override fun onWindowVisibilityChanged(visibility: Int) {
+    super.onWindowVisibilityChanged(visibility)
+    if (visibility != View.VISIBLE) {
+      stopPlaybackForBackground()
+    } else {
+      resumePlaybackFromBackground()
+    }
+  }
+
+  private fun stopPlaybackForBackground() {
+    post {
+      if (released) return@post
+      if (mediaPlayer.isPlaying) {
+        isPausedByLifecycle = true
+        try {
+          mediaPlayer.stop()
+        } catch (_: Exception) {}
+      }
+      try {
+        if (multicastLock?.isHeld == true) {
+          multicastLock.release()
+        }
+      } catch (_: Exception) {}
+    }
+  }
+
+  private fun resumePlaybackFromBackground() {
+    post {
+      if (released) return@post
+      try {
+        if (multicastLock?.isHeld == false) {
+          multicastLock.acquire()
+        }
+      } catch (_: Exception) {}
+
+      if (isPausedByLifecycle && !activeUrl.isNullOrEmpty()) {
+        isPausedByLifecycle = false
+        try {
+          mediaPlayer.stop()
+          val url = activeUrl
+          if (url != null) {
+            val media = Media(libVlc, Uri.parse(url))
+            media.addOption(":network-caching=1200")
+            media.addOption(":udp-caching=1200")
+            mediaPlayer.media = media
+            media.release()
+            mediaPlayer.play()
+          }
+        } catch (_: Exception) {}
+      }
+    }
   }
 
   override fun onDetachedFromWindow() {

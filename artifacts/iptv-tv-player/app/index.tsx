@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AppState,
   BackHandler,
   DeviceEventEmitter,
   FlatList,
@@ -23,9 +24,20 @@ const REMOTE_KEY_EVENT = 'AndroidTVRemoteKey';
 const DOUBLE_SELECT_WINDOW_MS = 1600;
 const theme = colors.dark;
 
-function digitForRemoteKey(keyCode: number): string | null {
-  if (keyCode >= 7 && keyCode <= 16) return String(keyCode - 7);
-  if (keyCode >= 144 && keyCode <= 153) return String(keyCode - 144);
+function digitForRemoteKey(eventData: any): string | null {
+  if (typeof eventData === 'object' && eventData !== null) {
+    if (eventData.digit && typeof eventData.digit === 'string') return eventData.digit;
+    const keyCode = eventData.keyCode;
+    if (typeof keyCode === 'number') {
+      if (keyCode >= 7 && keyCode <= 16) return String(keyCode - 7);
+      if (keyCode >= 144 && keyCode <= 153) return String(keyCode - 144);
+      if (keyCode >= 230 && keyCode <= 239) return String(keyCode - 230);
+    }
+  } else if (typeof eventData === 'number') {
+    if (eventData >= 7 && eventData <= 16) return String(eventData - 7);
+    if (eventData >= 144 && eventData <= 153) return String(eventData - 144);
+    if (eventData >= 230 && eventData <= 239) return String(eventData - 230);
+  }
   return null;
 }
 
@@ -46,7 +58,7 @@ function webKeyCode(key: string): number | null {
 
 export default function HomeScreen() {
   useKeepAwake();
-  const { updateAvailable, updateInfo, downloading, downloadProgress, downloadAndInstall } = useAppUpdate();
+  const { updateAvailable, updateStatus, triggerAppUpdate } = useAppUpdate();
   const { width, height } = useWindowDimensions();
   const wideLayout = width > height || width >= 760;
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -190,7 +202,7 @@ export default function HomeScreen() {
   }, [cancelPendingPress, selectedIndex]);
 
   const appendChannelDigit = useCallback((digit: string) => {
-    const nextInput = `${numberInputRef.current}${digit}`.slice(-2);
+    const nextInput = `${numberInputRef.current}${digit}`;
     numberInputRef.current = nextInput;
     setNumberInput(nextInput);
     setInvalidNumber(false);
@@ -198,8 +210,8 @@ export default function HomeScreen() {
     if (numberTimerRef.current) clearTimeout(numberTimerRef.current);
 
     numberTimerRef.current = setTimeout(() => {
-      const channelNumber = Number(numberInputRef.current);
-      const channel = channels[channelNumber - 1];
+      const channelNumber = parseInt(numberInputRef.current, 10);
+      const channel = channels.find((c) => c.number === channelNumber);
       if (channel) {
         commitChannel(channel);
         return;
@@ -214,17 +226,17 @@ export default function HomeScreen() {
     }, 3000);
   }, [cancelPendingPress, commitChannel]);
 
-  const handleRemoteKey = useCallback((eventData: number | { keyCode: number; action: number }) => {
+  const handleRemoteKey = useCallback((eventData: number | { keyCode: number; action: number; digit?: string }) => {
     const keyCode = typeof eventData === 'number' ? eventData : eventData.keyCode;
     const action = typeof eventData === 'number' ? 0 : eventData.action;
 
-    if (updateAvailable && (keyCode === 85 || keyCode === 126 || keyCode === 127)) {
+    if (keyCode === 85 || keyCode === 126 || keyCode === 127) {
       if (action === 0) {
         if (!longPressTimerRef.current) {
           longPressTimerRef.current = setTimeout(() => {
-            downloadAndInstall();
+            triggerAppUpdate();
             longPressTimerRef.current = null;
-          }, 3000);
+          }, 1500);
         }
       } else if (action === 1) {
         if (longPressTimerRef.current) {
@@ -235,19 +247,29 @@ export default function HomeScreen() {
       return;
     }
 
-    const digit = digitForRemoteKey(keyCode);
+    if (action !== 0) return;
+
+    const digit = digitForRemoteKey(eventData);
     if (digit !== null) {
       appendChannelDigit(digit);
       return;
     }
 
-    if (keyCode === 20 || keyCode === 167) {
+    if (keyCode === 166 || keyCode === 167) {
+      const step = keyCode === 167 ? 1 : -1;
+      const nextIndex = Math.max(0, Math.min(channels.length - 1, (currentChannel?.number ?? 1) - 1 + step));
+      const nextChan = channels[nextIndex];
+      if (nextChan) commitChannel(nextChan);
+      return;
+    }
+
+    if (keyCode === 20) {
       if (guideOpen) moveSelection(1);
       else openGuide();
       return;
     }
 
-    if (keyCode === 19 || keyCode === 166) {
+    if (keyCode === 19) {
       if (guideOpen) moveSelection(-1);
       else openGuide();
       return;
@@ -259,11 +281,14 @@ export default function HomeScreen() {
     }
   }, [
     appendChannelDigit,
+    commitChannel,
+    currentChannel?.number,
     guideOpen,
     handleChannelPress,
     moveSelection,
     openGuide,
     selectedIndex,
+    triggerAppUpdate,
   ]);
 
   useEffect(() => {
@@ -310,9 +335,25 @@ export default function HomeScreen() {
     return () => subscription.remove();
   }, [cancelPendingPress, guideOpen]);
 
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        if (numberTimerRef.current) {
+          clearTimeout(numberTimerRef.current);
+          numberTimerRef.current = null;
+        }
+        numberInputRef.current = '';
+        setNumberInput('');
+        setInvalidNumber(false);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   useEffect(() => () => {
     if (pendingPressTimerRef.current) clearTimeout(pendingPressTimerRef.current);
     if (numberTimerRef.current) clearTimeout(numberTimerRef.current);
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
   }, []);
 
   const renderChannel = useCallback(
@@ -376,6 +417,26 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
+      {/* Top-Level Number Entry Overlay over Main Video Interface */}
+      {numberInput || invalidNumber ? (
+        <View pointerEvents="none" style={styles.numberEntryOverlay}>
+          <Text style={styles.numberEntryValue}>
+            {invalidNumber ? numberInput : `CH ${numberInput}`}
+          </Text>
+          <Text style={styles.numberEntryLabel}>
+            {invalidNumber ? 'CHANNEL NOT FOUND' : 'TUNING IN'}
+          </Text>
+        </View>
+      ) : null}
+
+      {/* Top-Level App Update Status Overlay */}
+      {updateStatus ? (
+        <View style={styles.updateStatusOverlay} pointerEvents="none">
+          <Feather name="download-cloud" size={18} color={theme.primaryForeground} />
+          <Text style={styles.updateStatusText}>{updateStatus}</Text>
+        </View>
+      ) : null}
+
       <View style={[styles.header, !guideOpen && styles.hidden]}>
         <View style={styles.brand}>
           <View style={styles.brandIcon}>
@@ -444,17 +505,6 @@ export default function HomeScreen() {
               </Text>
             </View>
           </View>
-
-          {numberInput || invalidNumber ? (
-            <View pointerEvents="none" style={styles.numberEntry}>
-              <Text style={styles.numberEntryValue}>
-                {invalidNumber ? numberInput : `CH ${numberInput}`}
-              </Text>
-              <Text style={styles.numberEntryLabel}>
-                {invalidNumber ? 'CHANNEL NOT FOUND' : 'TUNING IN'}
-              </Text>
-            </View>
-          ) : null}
         </View>
 
         <View
@@ -519,12 +569,60 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: theme.background,
+    position: 'relative',
   },
   fullscreenScreen: {
     padding: 0,
   },
   hidden: {
     display: 'none',
+  },
+  numberEntryOverlay: {
+    position: 'absolute',
+    top: 36,
+    right: 36,
+    alignItems: 'flex-end',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: theme.primary,
+    backgroundColor: 'rgba(15, 23, 42, 0.94)',
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    zIndex: 99999,
+    elevation: 999,
+  },
+  numberEntryValue: {
+    color: theme.primary,
+    fontSize: 34,
+    fontWeight: '900',
+    fontVariant: ['tabular-nums'],
+    letterSpacing: 1,
+  },
+  numberEntryLabel: {
+    color: theme.foreground,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginTop: 4,
+  },
+  updateStatusOverlay: {
+    position: 'absolute',
+    top: 36,
+    left: 36,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: theme.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    zIndex: 99999,
+    elevation: 999,
+  },
+  updateStatusText: {
+    color: theme.primaryForeground,
+    fontSize: 13,
+    fontWeight: '700',
   },
   header: {
     height: 50,
@@ -644,31 +742,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.1,
   },
-  numberEntry: {
-    position: 'absolute',
-    top: 28,
-    right: 28,
-    alignItems: 'flex-end',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: theme.border,
-    backgroundColor: theme.card,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-  numberEntryValue: {
-    color: theme.foreground,
-    fontSize: 25,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
-  },
-  numberEntryLabel: {
-    color: theme.mutedForeground,
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 1,
-    marginTop: 3,
-  },
   guide: {
     minHeight: 0,
     overflow: 'hidden',
@@ -774,7 +847,7 @@ const styles = StyleSheet.create({
   footer: {
     height: 24,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'end',
     justifyContent: 'space-between',
     paddingHorizontal: 2,
   },
@@ -789,30 +862,5 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '600',
     letterSpacing: 0.6,
-  },
-  updateBanner: {
-    backgroundColor: theme.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 12,
-  },
-  updateText: {
-    color: theme.primaryForeground,
-    fontSize: 13,
-    fontWeight: '600',
-    flex: 1,
-  },
-  updateButton: {
-    backgroundColor: theme.foreground,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  updateButtonText: {
-    color: theme.background,
-    fontSize: 12,
-    fontWeight: '700',
   },
 });

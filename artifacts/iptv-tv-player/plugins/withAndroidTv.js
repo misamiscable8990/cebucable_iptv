@@ -104,8 +104,15 @@ module.exports = function withAndroidTv(config) {
     );
 
     const remoteKeyBridge = `
-  private fun isCapturedRemoteKey(keyCode: Int): Boolean =
-    keyCode == KeyEvent.KEYCODE_DPAD_UP ||
+  private fun isCapturedRemoteKey(event: KeyEvent): Boolean {
+    val keyCode = event.keyCode
+    val char = event.unicodeChar.toChar()
+    val isDigit = (keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9) ||
+      (keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9) ||
+      (keyCode in 230..239) ||
+      char.isDigit()
+    return isDigit ||
+      keyCode == KeyEvent.KEYCODE_DPAD_UP ||
       keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
       keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
       keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ||
@@ -116,25 +123,33 @@ module.exports = function withAndroidTv(config) {
       keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
       keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
       keyCode == KeyEvent.KEYCODE_MEDIA_PLAY ||
-      keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE ||
-      keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 ||
-      keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9
+      keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
+  }
 
-  private fun sendRemoteKey(keyCode: Int, action: Int) {
-    val context = (application as? ReactApplication)?.reactHost?.currentReactContext ?: return
+  private fun sendRemoteKey(event: KeyEvent) {
+    val reactContext = (application as? ReactApplication)?.reactHost?.currentReactContext
+      ?: reactInstanceManager?.currentReactContext
+      ?: return
+    val char = event.unicodeChar.toChar()
+    val digitStr = if (char.isDigit()) char.toString() else null
     val params = Arguments.createMap().apply {
-      putInt("keyCode", keyCode)
-      putInt("action", action)
+      putInt("keyCode", event.keyCode)
+      putInt("action", event.action)
+      if (digitStr != null) {
+        putString("digit", digitStr)
+      }
     }
-    context
-      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-      .emit("AndroidTVRemoteKey", params)
+    try {
+      reactContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        .emit("AndroidTVRemoteKey", params)
+    } catch (_: Exception) {}
   }
 
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    if (isCapturedRemoteKey(event.keyCode)) {
+    if (isCapturedRemoteKey(event)) {
       if (event.repeatCount == 0 && (event.action == KeyEvent.ACTION_DOWN || event.action == KeyEvent.ACTION_UP)) {
-        sendRemoteKey(event.keyCode, event.action)
+        sendRemoteKey(event)
       }
       return true
     }
