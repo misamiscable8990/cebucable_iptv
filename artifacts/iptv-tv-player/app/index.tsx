@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AppState,
   BackHandler,
   DeviceEventEmitter,
   FlatList,
@@ -66,6 +67,15 @@ export default function HomeScreen() {
   const numberInputRef = useRef('');
   const numberTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState !== 'active') {
+        setCurrentId(null);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     let active = true;

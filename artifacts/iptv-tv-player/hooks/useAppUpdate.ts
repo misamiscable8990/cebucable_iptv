@@ -50,12 +50,6 @@ export function useAppUpdate() {
     }
   }, [updateInfo]);
 
-  useEffect(() => {
-    if (updateAvailable && updateInfo?.apkUrl) {
-      downloadAndInstall();
-    }
-  }, [updateAvailable, updateInfo, downloadAndInstall]);
-
   return {
     updateAvailable,
     updateInfo,
