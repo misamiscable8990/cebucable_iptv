@@ -72,7 +72,7 @@ export default function HomeScreen() {
   const [restoring, setRestoring] = useState(true);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [saveWarning, setSaveWarning] = useState(false);
-  const [channelOSD, setChannelOSD] = useState<string | null>(null);
+  const [currentChannelOSD, setCurrentChannelOSD] = useState<Channel | null>(null);
 
   const listRef = useRef<FlatList<Channel> | null>(null);
   const pendingPressRef = useRef<{ channelId: string; at: number } | null>(null);
@@ -115,12 +115,12 @@ export default function HomeScreen() {
   );
 
   const showChannelOSD = useCallback((channel: Channel) => {
-    setChannelOSD(`CH ${String(channel.number).padStart(2, '0')} · ${channel.name}`);
+    setCurrentChannelOSD(channel);
     if (osdTimerRef.current) clearTimeout(osdTimerRef.current);
     osdTimerRef.current = setTimeout(() => {
-      setChannelOSD(null);
+      setCurrentChannelOSD(null);
       osdTimerRef.current = null;
-    }, 3000);
+    }, 3500);
   }, []);
 
   const cancelPendingPress = useCallback(() => {
@@ -458,7 +458,7 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
-      {/* Top-Level Visible Channel Number Search Overlay over Main Full Screen Video */}
+      {/* Top-Level Visible Channel Number Search Overlay (works in Full Screen & Channel Guide) */}
       {numberInput || invalidNumber ? (
         <View pointerEvents="none" style={styles.numberEntryOverlay}>
           <Text style={styles.numberEntryValue}>
@@ -470,11 +470,16 @@ export default function HomeScreen() {
         </View>
       ) : null}
 
-      {/* Top-Level Channel Info OSD Banner on Full Screen Video */}
-      {!guideOpen && channelOSD && !numberInput && !invalidNumber ? (
+      {/* Top-Level Channel Info OSD Banner during Direct Channel Switching in Full Screen Video */}
+      {!guideOpen && currentChannelOSD && !numberInput && !invalidNumber ? (
         <View pointerEvents="none" style={styles.channelOSDBanner}>
           <View style={styles.liveDot} />
-          <Text style={styles.channelOSDText}>{channelOSD}</Text>
+          <Text style={styles.channelOSDNum}>
+            CH {String(currentChannelOSD.number).padStart(2, '0')}
+          </Text>
+          <Text style={styles.channelOSDText}>
+            {currentChannelOSD.name}
+          </Text>
         </View>
       ) : null}
 
@@ -664,15 +669,26 @@ const styles = StyleSheet.create({
     left: 40,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    backgroundColor: 'rgba(15, 23, 42, 0.92)',
-    paddingHorizontal: 22,
+    gap: 14,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: theme.primary,
+    backgroundColor: 'rgba(10, 15, 30, 0.95)',
+    paddingHorizontal: 24,
     paddingVertical: 14,
+    shadowColor: theme.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
     zIndex: 99998,
     elevation: 998,
+  },
+  channelOSDNum: {
+    color: theme.primary,
+    fontSize: 28,
+    fontWeight: '900',
+    fontVariant: ['tabular-nums'],
+    letterSpacing: 1,
   },
   channelOSDText: {
     color: '#FFFFFF',

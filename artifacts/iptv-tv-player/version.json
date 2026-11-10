@@ -1,6 +1,6 @@
 {
-  "version": "1.0.18",
-  "versionCode": 19,
-  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.18/app-release.apk",
-  "releaseNotes": "CEBU CABLE IPTV v1.0.18 release: Direct channel switching with arrow/channel up/down in full screen, prominent channel number overlay, and OK button guide trigger."
+  "version": "1.0.19",
+  "versionCode": 20,
+  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.19/app-release.apk",
+  "releaseNotes": "CEBU CABLE IPTV v1.0.19 release: Visible channel number during direct channel switching, universal channel number search overlay in full screen & guide."
 }
