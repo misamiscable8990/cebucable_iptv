@@ -66,7 +66,7 @@ export default function HomeScreen() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
-  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(true);
   const [numberInput, setNumberInput] = useState('');
   const [invalidNumber, setInvalidNumber] = useState(false);
   const [restoring, setRestoring] = useState(true);
