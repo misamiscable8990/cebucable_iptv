@@ -310,8 +310,29 @@ export default function HomeScreen() {
       return;
     }
 
-    // OK / Enter / Center button (23, 66, 160) - ONLY button that opens channel guide!
+    // OK / Enter / Center button (23, 66, 160)
     if (keyCode === 23 || keyCode === 66 || keyCode === 160) {
+      // If user typed digits and presses OK, tune IMMEDIATELY without waiting 3s!
+      if (numberInputRef.current) {
+        if (numberTimerRef.current) {
+          clearTimeout(numberTimerRef.current);
+          numberTimerRef.current = null;
+        }
+        const channelNumber = parseInt(numberInputRef.current, 10);
+        const channel = channels.find((c) => c.number === channelNumber);
+        if (channel) {
+          commitChannel(channel);
+        } else {
+          setInvalidNumber(true);
+          setTimeout(() => {
+            numberInputRef.current = '';
+            setNumberInput('');
+            setInvalidNumber(false);
+          }, 1500);
+        }
+        return;
+      }
+
       if (guideOpen) {
         const channel = channels[selectedIndex];
         if (channel) handleChannelPress(channel);
@@ -323,6 +344,7 @@ export default function HomeScreen() {
   }, [
     appendChannelDigit,
     changeChannelByStep,
+    commitChannel,
     guideOpen,
     handleChannelPress,
     moveSelection,

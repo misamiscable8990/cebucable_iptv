@@ -16,7 +16,13 @@ import org.videolan.libvlc.util.VLCVideoLayout
 class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
   private val libVlc = LibVLC(
     context.applicationContext,
-    arrayListOf("--no-video-title-show", "--network-caching=1200", "--udp-caching=1200"),
+    arrayListOf(
+      "--no-video-title-show",
+      "--network-caching=300",
+      "--udp-caching=300",
+      "--clock-jitter=0",
+      "--clock-synchro=0"
+    ),
   )
   private val mediaPlayer = MediaPlayer(libVlc)
   private val videoLayout = VLCVideoLayout(context)
@@ -69,8 +75,10 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       try {
         mediaPlayer.stop()
         val media = Media(libVlc, Uri.parse(url))
-        media.addOption(":network-caching=1200")
-        media.addOption(":udp-caching=1200")
+        media.addOption(":network-caching=300")
+        media.addOption(":udp-caching=300")
+        media.addOption(":clock-jitter=0")
+        media.addOption(":clock-synchro=0")
         mediaPlayer.media = media
         media.release()
         mediaPlayer.play()
@@ -131,8 +139,10 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
           val url = activeUrl
           if (url != null) {
             val media = Media(libVlc, Uri.parse(url))
-            media.addOption(":network-caching=1200")
-            media.addOption(":udp-caching=1200")
+            media.addOption(":network-caching=300")
+            media.addOption(":udp-caching=300")
+            media.addOption(":clock-jitter=0")
+            media.addOption(":clock-synchro=0")
             mediaPlayer.media = media
             media.release()
             mediaPlayer.play()
