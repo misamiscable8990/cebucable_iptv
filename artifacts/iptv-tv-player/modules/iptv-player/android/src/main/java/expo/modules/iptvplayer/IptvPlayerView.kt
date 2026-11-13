@@ -44,6 +44,10 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
     )
     mediaPlayer.attachViews(videoLayout, null, true, true)
+    try {
+      mediaPlayer.aspectRatio = "16:9"
+    } catch (_: Exception) {}
+
     mediaPlayer.setEventListener { event ->
       if (event.type == MediaPlayer.Event.EncounteredError) {
         post {
@@ -83,6 +87,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
         mediaPlayer.media = media
         media.release()
         mediaPlayer.play()
+        try {
+          mediaPlayer.aspectRatio = "16:9"
+        } catch (_: Exception) {}
         isPausedByLifecycle = false
       } catch (_: Exception) {
         onStreamError(
@@ -147,6 +154,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
             mediaPlayer.media = media
             media.release()
             mediaPlayer.play()
+            try {
+              mediaPlayer.aspectRatio = "16:9"
+            } catch (_: Exception) {}
           }
         } catch (_: Exception) {}
       }
