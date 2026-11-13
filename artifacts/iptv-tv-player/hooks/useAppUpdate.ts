@@ -9,8 +9,8 @@ export type UpdateInfo = {
 };
 
 const GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/misamiscable8990/cebucable_iptv/main/version.json';
-export const CURRENT_VERSION = '1.0.22';
-export const CURRENT_VERSION_CODE = 23;
+export const CURRENT_VERSION = '1.0.23';
+export const CURRENT_VERSION_CODE = 24;
 
 export function useAppUpdate() {
   const [updateAvailable, setUpdateAvailable] = useState(false);

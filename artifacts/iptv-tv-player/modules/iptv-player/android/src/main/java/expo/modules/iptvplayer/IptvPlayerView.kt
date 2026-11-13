@@ -38,11 +38,12 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
 
   init {
     setBackgroundColor(Color.BLACK)
+    videoLayout.fitsSystemWindows = false
     addView(
       videoLayout,
       LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
     )
-    mediaPlayer.attachViews(videoLayout, null, false, false)
+    mediaPlayer.attachViews(videoLayout, null, true, true)
     mediaPlayer.setEventListener { event ->
       if (event.type == MediaPlayer.Event.EncounteredError) {
         post {

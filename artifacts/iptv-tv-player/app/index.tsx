@@ -649,6 +649,9 @@ const styles = StyleSheet.create({
   },
   fullscreenScreen: {
     padding: 0,
+    margin: 0,
+    width: '100%',
+    height: '100%',
   },
   hidden: {
     display: 'none',
@@ -794,6 +797,8 @@ const styles = StyleSheet.create({
   },
   fullscreenPlayerColumn: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
   playerFrame: {
     flex: 1,
@@ -805,6 +810,9 @@ const styles = StyleSheet.create({
     borderColor: theme.border,
   },
   fullscreenPlayerFrame: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
     minHeight: 0,
     borderRadius: 0,
     borderWidth: 0,
