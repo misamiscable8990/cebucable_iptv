@@ -2,7 +2,7 @@
   "expo": {
     "name": "IPTV TV Player",
     "slug": "iptv-tv-player",
-    "version": "1.0.20",
+    "version": "1.0.22",
     "orientation": "landscape",
     "icon": "./assets/images/icon_2.png",
     "scheme": "iptv-tv-player",

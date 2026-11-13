@@ -16,7 +16,7 @@ import {
 import PlayerSurface from '@/components/PlayerSurface';
 import colors from '@/constants/colors';
 import { channels, type Channel } from '@/data/channels';
-import { useAppUpdate } from '@/hooks/useAppUpdate';
+import { useAppUpdate, CURRENT_VERSION } from '@/hooks/useAppUpdate';
 import { useKeepAwake } from 'expo-keep-awake';
 
 const STORAGE_KEY = 'iptv:last-channel';
@@ -634,7 +634,7 @@ export default function HomeScreen() {
         <Text style={styles.footerNetwork}>
           {saveWarning
             ? 'LAST CHANNEL COULD NOT BE SAVED'
-            : 'SAME LOCAL NETWORK REQUIRED'}
+            : `Developed and maintained by Paul David Caburnay\n© 2026 Made with dedication and passion v${CURRENT_VERSION}`}
         </Text>
       </View>
     </View>
@@ -958,11 +958,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   footer: {
-    height: 24,
+    minHeight: 32,
     flexDirection: 'row',
-    alignItems: 'end',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 2,
+    paddingHorizontal: 4,
+    marginTop: 4,
   },
   footerText: {
     color: theme.mutedForeground,
@@ -972,8 +973,9 @@ const styles = StyleSheet.create({
   },
   footerNetwork: {
     color: theme.mutedForeground,
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '600',
-    letterSpacing: 0.6,
+    lineHeight: 15,
+    letterSpacing: 0.5,
   },
 });

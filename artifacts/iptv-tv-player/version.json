@@ -1,6 +1,6 @@
 {
-  "version": "1.0.20",
-  "versionCode": 21,
-  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.20/app-release.apk",
-  "releaseNotes": "CEBU CABLE IPTV v1.0.20 release: Automatically open in channel guide on launch, visible channel number search overlay, and background playback fix."
+  "version": "1.0.22",
+  "versionCode": 23,
+  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.22/app-release.apk",
+  "releaseNotes": "CEBU CABLE IPTV v1.0.22 release: Updated footer credits to Paul David Caburnay, fast channel tuning, and auto-open guide."
 }
