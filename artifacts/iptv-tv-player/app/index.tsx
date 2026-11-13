@@ -200,7 +200,7 @@ export default function HomeScreen() {
   }, [cancelPendingPress, selectedIndex]);
 
   const appendChannelDigit = useCallback((digit: string) => {
-    const nextInput = `${numberInputRef.current}${digit}`.slice(-2);
+    const nextInput = `${numberInputRef.current}${digit}`.slice(-3);
     numberInputRef.current = nextInput;
     setNumberInput(nextInput);
     setInvalidNumber(false);
@@ -209,7 +209,7 @@ export default function HomeScreen() {
 
     numberTimerRef.current = setTimeout(() => {
       const channelNumber = Number(numberInputRef.current);
-      const channel = channels[channelNumber - 1];
+      const channel = channels.find((c) => c.number === channelNumber) || channels[channelNumber - 1];
       if (channel) {
         commitChannel(channel);
         return;
@@ -224,9 +224,10 @@ export default function HomeScreen() {
     }, 3000);
   }, [cancelPendingPress, commitChannel]);
 
-  const handleRemoteKey = useCallback((eventData: number | { keyCode: number; action: number }) => {
+  const handleRemoteKey = useCallback((eventData: number | { keyCode: number; action: number; digit?: string }) => {
     const keyCode = typeof eventData === 'number' ? eventData : eventData.keyCode;
     const action = typeof eventData === 'number' ? 0 : eventData.action;
+    const explicitDigit = typeof eventData === 'object' ? eventData.digit : undefined;
 
     if (updateAvailable && (keyCode === 85 || keyCode === 126 || keyCode === 127)) {
       if (action === 0) {
@@ -245,9 +246,11 @@ export default function HomeScreen() {
       return;
     }
 
-    const digit = digitForRemoteKey(keyCode);
+    const digit = explicitDigit !== undefined ? explicitDigit : digitForRemoteKey(keyCode);
     if (digit !== null) {
-      appendChannelDigit(digit);
+      if (!guideOpen) {
+        appendChannelDigit(digit);
+      }
       return;
     }
 

@@ -104,7 +104,7 @@ module.exports = function withAndroidTv(config) {
     );
 
     const remoteKeyBridge = `
-  private fun isCapturedRemoteKey(keyCode: Int): Boolean =
+  private fun isCapturedRemoteKey(keyCode: Int, event: KeyEvent): Boolean =
     keyCode == KeyEvent.KEYCODE_DPAD_UP ||
       keyCode == KeyEvent.KEYCODE_DPAD_DOWN ||
       keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
@@ -118,13 +118,21 @@ module.exports = function withAndroidTv(config) {
       keyCode == KeyEvent.KEYCODE_MEDIA_PLAY ||
       keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE ||
       keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 ||
-      keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9
+      keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9 ||
+      Character.isDigit(event.unicodeChar)
 
-  private fun sendRemoteKey(keyCode: Int, action: Int) {
+  private fun sendRemoteKey(keyCode: Int, action: Int, event: KeyEvent) {
     val context = (application as? ReactApplication)?.reactHost?.currentReactContext ?: return
     val params = Arguments.createMap().apply {
       putInt("keyCode", keyCode)
       putInt("action", action)
+      if (Character.isDigit(event.unicodeChar)) {
+        putString("digit", Character.toString(event.unicodeChar))
+      } else if (keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9) {
+        putString("digit", (keyCode - KeyEvent.KEYCODE_0).toString())
+      } else if (keyCode in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9) {
+        putString("digit", (keyCode - KeyEvent.KEYCODE_NUMPAD_0).toString())
+      }
     }
     context
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
@@ -132,9 +140,9 @@ module.exports = function withAndroidTv(config) {
   }
 
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    if (isCapturedRemoteKey(event.keyCode)) {
+    if (isCapturedRemoteKey(event.keyCode, event)) {
       if (event.repeatCount == 0 && (event.action == KeyEvent.ACTION_DOWN || event.action == KeyEvent.ACTION_UP)) {
-        sendRemoteKey(event.keyCode, event.action)
+        sendRemoteKey(event.keyCode, event.action, event)
       }
       return true
     }

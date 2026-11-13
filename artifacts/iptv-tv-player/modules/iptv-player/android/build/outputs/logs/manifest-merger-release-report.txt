@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml:2:13-83
-INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml:2:13-83
+ADDED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml:2:13-83
+INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml:2:13-83
 	package
-		INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml
+		INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml
 	xmlns:android
-		ADDED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml:2:23-81
+		ADDED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml:2:23-81
 uses-sdk
-INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml reason: use-sdk injection requested
-INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml
-INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml
+INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml reason: use-sdk injection requested
+INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml
+INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml
 	android:targetSdkVersion
-		INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml
+		INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml
 	android:minSdkVersion
-		INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest7937217149539835964.xml
+		INJECTED from /home/misamis/Documents/paulpogs/Android-TV-new-latest/Android-TV-new/Android-TV-IPTV-Player/artifacts/iptv-tv-player/modules/iptv-player/android/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest1575747721781908701.xml
