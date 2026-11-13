@@ -3,9 +3,6 @@ package com.geobot.iptvplayer
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 
 import com.facebook.react.ReactApplication
 import com.facebook.react.bridge.Arguments
@@ -23,36 +20,8 @@ class MainActivity : ReactActivity() {
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
     // This is required for expo-splash-screen.
-    setTheme(R.style.AppTheme)
+    setTheme(R.style.AppTheme);
     super.onCreate(null)
-    hideSystemUI()
-  }
-
-  override fun onWindowFocusChanged(hasFocus: Boolean) {
-    super.onWindowFocusChanged(hasFocus)
-    if (hasFocus) {
-      hideSystemUI()
-    }
-  }
-
-  private fun hideSystemUI() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      window.setDecorFitsSystemWindows(false)
-      window.insetsController?.let { controller ->
-        controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-        controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-      }
-    } else {
-      @Suppress("DEPRECATION")
-      window.decorView.systemUiVisibility = (
-        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-          or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-          or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-          or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-          or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-          or View.SYSTEM_UI_FLAG_FULLSCREEN
-      )
-    }
   }
 
   /**
@@ -81,6 +50,33 @@ class MainActivity : ReactActivity() {
     * where moving root activities to background instead of finishing activities.
     * @see <a href="https://developer.android.com/reference/android/app/Activity#onBackPressed()">onBackPressed</a>
     */
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    super.onWindowFocusChanged(hasFocus)
+    if (hasFocus) {
+      hideSystemUI()
+    }
+  }
+
+  private fun hideSystemUI() {
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+      window.setDecorFitsSystemWindows(false)
+      window.insetsController?.let { controller ->
+        controller.hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+        controller.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+      }
+    } else {
+      @Suppress("DEPRECATION")
+      window.decorView.systemUiVisibility = (
+        android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+          or android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+          or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+          or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+          or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+          or android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+      )
+    }
+  }
 
   private fun isCapturedRemoteKey(event: KeyEvent): Boolean {
     val keyCode = event.keyCode
