@@ -47,23 +47,25 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       videoLayout,
       LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
     )
-    mediaPlayer.attachViews(videoLayout, null, true, true)
-    try {
-      mediaPlayer.aspectRatio = "16:9"
-    } catch (_: Exception) {}
+    // Pass videoBestFit = false to prevent VLC from inserting pillarboxes/letterboxes
+    mediaPlayer.attachViews(videoLayout, null, true, false)
+    applyAspectRatio()
 
     mediaPlayer.setEventListener { event ->
-      if (event.type == MediaPlayer.Event.Vout || event.type == MediaPlayer.Event.Playing) {
-        post {
-          try {
-            mediaPlayer.aspectRatio = "16:9"
-          } catch (_: Exception) {}
+      when (event.type) {
+        MediaPlayer.Event.Vout,
+        MediaPlayer.Event.Playing,
+        MediaPlayer.Event.ESAdded -> {
+          post { applyAspectRatio() }
+          postDelayed({ applyAspectRatio() }, 300)
+          postDelayed({ applyAspectRatio() }, 800)
         }
-      } else if (event.type == MediaPlayer.Event.EncounteredError) {
-        post {
-          onStreamError(
-            mapOf("message" to "No multicast video was received. Check the TV network and stream."),
-          )
+        MediaPlayer.Event.EncounteredError -> {
+          post {
+            onStreamError(
+              mapOf("message" to "No multicast video was received. Check the TV network and stream."),
+            )
+          }
         }
       }
     }
@@ -79,6 +81,13 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
         )
       }
     }
+  }
+
+  private fun applyAspectRatio() {
+    if (released) return
+    try {
+      mediaPlayer.aspectRatio = "16:9"
+    } catch (_: Exception) {}
   }
 
   fun setStreamUrl(url: String?) {
@@ -100,9 +109,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
         mediaPlayer.media = media
         media.release()
         mediaPlayer.play()
-        try {
-          mediaPlayer.aspectRatio = "16:9"
-        } catch (_: Exception) {}
+        applyAspectRatio()
+        postDelayed({ applyAspectRatio() }, 300)
+        postDelayed({ applyAspectRatio() }, 800)
         isPausedByLifecycle = false
       } catch (_: Exception) {
         onStreamError(
@@ -170,9 +179,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
             mediaPlayer.media = media
             media.release()
             mediaPlayer.play()
-            try {
-              mediaPlayer.aspectRatio = "16:9"
-            } catch (_: Exception) {}
+            applyAspectRatio()
+            postDelayed({ applyAspectRatio() }, 300)
+            postDelayed({ applyAspectRatio() }, 800)
           }
         } catch (_: Exception) {}
       }
