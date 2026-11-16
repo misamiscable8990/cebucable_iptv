@@ -22,10 +22,15 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       "--custom-aspect-ratio=16:9",
       "--crop=16:9",
       "--autoscale",
-      "--network-caching=300",
-      "--udp-caching=300",
-      "--clock-jitter=0",
-      "--clock-synchro=0"
+      "--network-caching=800",
+      "--udp-caching=800",
+      "--clock-jitter=500",
+      "--clock-synchro=0",
+      "--deinterlace=1",
+      "--deinterlace-mode=blend",
+      "--drop-late-frames",
+      "--skip-frames",
+      "--avcodec-hw=any"
     ),
   )
   private val mediaPlayer = MediaPlayer(libVlc)
@@ -85,8 +90,12 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
 
   override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
     super.onLayout(changed, left, top, right, bottom)
-    videoLayout.layout(0, 0, right - left, bottom - top)
-    applyAspectRatio()
+    val width = right - left
+    val height = bottom - top
+    if (width > 0 && height > 0) {
+      videoLayout.layout(0, 0, width, height)
+      applyAspectRatio()
+    }
   }
 
   private fun applyAspectRatio() {
@@ -109,9 +118,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
         media.addOption(":aspect-ratio=16:9")
         media.addOption(":custom-aspect-ratio=16:9")
         media.addOption(":crop=16:9")
-        media.addOption(":network-caching=300")
-        media.addOption(":udp-caching=300")
-        media.addOption(":clock-jitter=0")
+        media.addOption(":network-caching=800")
+        media.addOption(":udp-caching=800")
+        media.addOption(":clock-jitter=500")
         media.addOption(":clock-synchro=0")
         mediaPlayer.media = media
         media.release()
@@ -179,9 +188,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
             media.addOption(":aspect-ratio=16:9")
             media.addOption(":custom-aspect-ratio=16:9")
             media.addOption(":crop=16:9")
-            media.addOption(":network-caching=300")
-            media.addOption(":udp-caching=300")
-            media.addOption(":clock-jitter=0")
+            media.addOption(":network-caching=800")
+            media.addOption(":udp-caching=800")
+            media.addOption(":clock-jitter=500")
             media.addOption(":clock-synchro=0")
             mediaPlayer.media = media
             media.release()

@@ -18,6 +18,7 @@ import colors from '@/constants/colors';
 import { channels, type Channel } from '@/data/channels';
 import { useAppUpdate, CURRENT_VERSION } from '@/hooks/useAppUpdate';
 import { useKeepAwake } from 'expo-keep-awake';
+import { StatusBar } from 'expo-status-bar';
 
 const STORAGE_KEY = 'iptv:last-channel';
 const REMOTE_KEY_EVENT = 'AndroidTVRemoteKey';
@@ -480,6 +481,7 @@ export default function HomeScreen() {
         guideOpen ? guideModePadding : styles.fullscreenScreen,
       ]}
     >
+      <StatusBar hidden translucent />
       {/* Top-Level Visible Channel Number Search Overlay (works in Full Screen & Channel Guide) */}
       {numberInput || invalidNumber ? (
         <View pointerEvents="none" style={styles.numberEntryOverlay}>
