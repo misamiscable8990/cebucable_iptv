@@ -18,9 +18,6 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
     context.applicationContext,
     arrayListOf(
       "--no-video-title-show",
-      "--aspect-ratio=16:9",
-      "--custom-aspect-ratio=16:9",
-      "--crop=16:9",
       "--autoscale",
       "--network-caching=800",
       "--udp-caching=800",
@@ -52,8 +49,8 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       videoLayout,
       LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
     )
-    // Pass videoBestFit = false to prevent VLC from inserting pillarboxes/letterboxes
-    mediaPlayer.attachViews(videoLayout, null, true, false)
+    // Pass videoBestFit = true so VLC fits video in container preserving aspect ratio without distortion
+    mediaPlayer.attachViews(videoLayout, null, true, true)
     applyAspectRatio()
 
     mediaPlayer.setEventListener { event ->
@@ -101,7 +98,7 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
   private fun applyAspectRatio() {
     if (released) return
     try {
-      mediaPlayer.aspectRatio = "16:9"
+      mediaPlayer.aspectRatio = null
       mediaPlayer.scale = 0f
     } catch (_: Exception) {}
   }
@@ -115,9 +112,6 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       try {
         mediaPlayer.stop()
         val media = Media(libVlc, Uri.parse(url))
-        media.addOption(":aspect-ratio=16:9")
-        media.addOption(":custom-aspect-ratio=16:9")
-        media.addOption(":crop=16:9")
         media.addOption(":network-caching=800")
         media.addOption(":udp-caching=800")
         media.addOption(":clock-jitter=500")
@@ -185,9 +179,6 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
           val url = activeUrl
           if (url != null) {
             val media = Media(libVlc, Uri.parse(url))
-            media.addOption(":aspect-ratio=16:9")
-            media.addOption(":custom-aspect-ratio=16:9")
-            media.addOption(":crop=16:9")
             media.addOption(":network-caching=800")
             media.addOption(":udp-caching=800")
             media.addOption(":clock-jitter=500")
