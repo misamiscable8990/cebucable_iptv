@@ -83,10 +83,17 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
     }
   }
 
+  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+    super.onLayout(changed, left, top, right, bottom)
+    videoLayout.layout(0, 0, right - left, bottom - top)
+    applyAspectRatio()
+  }
+
   private fun applyAspectRatio() {
     if (released) return
     try {
       mediaPlayer.aspectRatio = "16:9"
+      mediaPlayer.scale = 0f
     } catch (_: Exception) {}
   }
 
