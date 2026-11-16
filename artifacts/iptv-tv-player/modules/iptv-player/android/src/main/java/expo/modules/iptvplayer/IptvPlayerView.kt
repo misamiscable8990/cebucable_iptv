@@ -18,6 +18,10 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
     context.applicationContext,
     arrayListOf(
       "--no-video-title-show",
+      "--aspect-ratio=16:9",
+      "--custom-aspect-ratio=16:9",
+      "--crop=16:9",
+      "--autoscale",
       "--network-caching=300",
       "--udp-caching=300",
       "--clock-jitter=0",
@@ -49,7 +53,13 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
     } catch (_: Exception) {}
 
     mediaPlayer.setEventListener { event ->
-      if (event.type == MediaPlayer.Event.EncounteredError) {
+      if (event.type == MediaPlayer.Event.Vout || event.type == MediaPlayer.Event.Playing) {
+        post {
+          try {
+            mediaPlayer.aspectRatio = "16:9"
+          } catch (_: Exception) {}
+        }
+      } else if (event.type == MediaPlayer.Event.EncounteredError) {
         post {
           onStreamError(
             mapOf("message" to "No multicast video was received. Check the TV network and stream."),
@@ -80,6 +90,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
       try {
         mediaPlayer.stop()
         val media = Media(libVlc, Uri.parse(url))
+        media.addOption(":aspect-ratio=16:9")
+        media.addOption(":custom-aspect-ratio=16:9")
+        media.addOption(":crop=16:9")
         media.addOption(":network-caching=300")
         media.addOption(":udp-caching=300")
         media.addOption(":clock-jitter=0")
@@ -147,6 +160,9 @@ class IptvPlayerView(context: Context, appContext: AppContext) : ExpoView(contex
           val url = activeUrl
           if (url != null) {
             val media = Media(libVlc, Uri.parse(url))
+            media.addOption(":aspect-ratio=16:9")
+            media.addOption(":custom-aspect-ratio=16:9")
+            media.addOption(":crop=16:9")
             media.addOption(":network-caching=300")
             media.addOption(":udp-caching=300")
             media.addOption(":clock-jitter=0")
