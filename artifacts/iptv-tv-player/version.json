@@ -1,6 +1,6 @@
 {
-  "version": "1.0.31",
-  "versionCode": 32,
-  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.31/app-release.apk",
-  "releaseNotes": "CEBU CABLE IPTV v1.0.31 release: Correct aspect ratio auto-fit for HD and SD channels in full screen and channel guide preview."
+  "version": "1.0.32",
+  "versionCode": 33,
+  "apkUrl": "https://github.com/misamiscable8990/cebucable_iptv/releases/download/v1.0.32/app-release.apk",
+  "releaseNotes": "CEBU CABLE IPTV v1.0.32 release: Zoomed aspect ratio for SD channels in full screen and channel guide preview box."
 }
