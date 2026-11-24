@@ -303,11 +303,7 @@ export default function HomeScreen() {
     // Channel Up (166) / Channel Down (167)
     if (keyCode === 166 || keyCode === 167) {
       const step = keyCode === 167 ? 1 : -1;
-      if (guideOpen) {
-        moveSelection(step);
-      } else {
-        changeChannelByStep(step);
-      }
+      changeChannelByStep(step);
       return;
     }
 
